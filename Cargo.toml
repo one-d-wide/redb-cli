@@ -7,18 +7,13 @@ repository = "https://github.com/one-d-wide/redb-cli"
 license = "MIT OR Apache-2.0"
 edition = "2024"
 
-[profile.dev]
-debug = false
-
-[profile.release]
-debug = false
-
 [dependencies]
 clap = { version = "4", features = [ "derive" ] }
 eyre = "0"
 pest = "2"
 pest_derive = "2"
 redb = "3"
+redb-derive = "0"
 serde = { version = "1", features = [ "derive" ] }
 serde_json = { version = "1", features = [ "arbitrary_precision" ] }
 thiserror = "2"
