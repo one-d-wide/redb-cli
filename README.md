@@ -2,8 +2,9 @@
 
 A CLI tool to read/modify [redb](https://github.com/cberner/redb) database files.
 
-Common key/value types are recognized by default (String, u64, Option, tuples,
-etc.), unknown types are presumed to be raw strings.
+All default types are supported (String, u64, Option, tuples, etc.), as well as
+user types annotated with [redb-derive](https://docs.rs/redb-derive). Unknown
+types are presumed to be raw strings.
 
 ## Usage
 
@@ -18,31 +19,33 @@ Arguments:
   [VALUE]  Value (raw string or JSON value)
 
 Options:
-  -l, --list     List tables and types
-  -c, --create   Create database file and table
-  -r, --remove   Remove key
-  -d, --delete   Delete table
-  -f, --force    Force update
-  -j, --json     Output JSON
-      --stats    Show table stats
-      --check    Check integrity
-      --compact  Compact database
-  -h, --help     Print help
-  -V, --version  Print version
+  -l, --list      List tables and types
+  -c, --create    Create database file and table
+  -r, --remove    Remove key
+  -d, --delete    Delete table
+  -m, --multimap  Open as multimap
+  -j, --json      Output JSON
+      --schema    Table schema, e.g. String -> String
+      --ro        Open database read-only
+      --stats     Show table stats
+      --check     Check integrity
+      --compact   Compact database
+  -h, --help      Print help
+  -V, --version   Print version
 ```
 
 ```sh
 $ redb-cli -l redb.db
-users: u64 -> User
-compound: (u64,i32) -> Log
+users: u64 -> String
+compound: (u64,i32) -> Log { time: u64, line: String }
 
 $ redb-cli -c redb.db strings
 Creating table "strings"
 
 $ redb-cli -l redb.db
 strings: String -> String
-users: u64 -> User
-compound: (u64,i32) -> Log
+users: u64 -> String
+compound: (u64,i32) -> Log { time: u64, line: String }
 
 $ redb-cli redb.db strings "hello" "world"
 
@@ -71,14 +74,7 @@ $ ~/.cargo/bin/redb-cli --help
 
 ## Limitations
 
-Redb types aren't designed with dynamic decoding in mind. Inside the db, types
-are only identified by a name and a special flag denoting whether the type is
-"internally" derived. As opposed to using a well-defined schema that can be
-included in table type definition and used by tools like redb-cli to
-dynamically decode data and present it to a user in a human-readable way.
-
-The current approach is to create a predefined list covering combinations of
-basic Rust types, encoder/decoder code is generated for each one individually.
-The downside is long compilation time and large binary size, as well as that
-not all supported types are covered. Dynamically doing encoding/decoding based
-on type name could be an improvement.
+We use a small rust-like [grammar](src/grammar.pest) to parse type names stored
+in the table metadata, hence all types derived by redb should be supported.
+Other encodings may be added later as well, preferably ones where schema-based
+decoder already exists.
