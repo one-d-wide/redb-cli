@@ -1,0 +1,30 @@
+WHITESPACE = _{ " " | "\t" | "\n" }
+IDENT_SYMBOL = _{ ASCII_ALPHANUMERIC | "_" }
+Ident = @{ !ASCII_DIGIT ~ IDENT_SYMBOL+ }
+Num = @{ ASCII_DIGIT+ }
+
+Type = _{
+  Int | Float | Bool | Char | String | Slice | Array | Option | Vec | Tuple | Struct
+}
+
+Int = { "u8" | "u16" | "u32" | "u64" | "u128" | "i8" | "i16" | "i32" | "i64" | "i128" }
+Float = { "f32" | "f64" }
+Bool = { "bool" }
+Char = { "char" }
+String = { "&" ~ "str" | "String" }
+Slice = { "&" ~ "[" ~ "u8" ~ "]"}
+Option = { "Option" ~ "<" ~ Type ~ ">" }
+Vec = { "Vec" ~ "<" ~ Type ~ ">" }
+Array = { "[" ~ Type ~ ";" ~ Num ~ "]" }
+Tuple = {
+  "(" ~ ","? ~ ")"
+  | "(" ~ Type ~ ("," ~ Type)* ~ ","? ~ ")"
+}
+
+StructField = _{ Ident ~ ":" ~ Type }
+Struct = {
+  Ident ~ "{" ~ ","? ~ "}"
+  | Ident ~ "{" ~ StructField ~ ("," ~ StructField)* ~ ","? ~ "}"
+}
+
+FullType = _{ SOI ~ Type ~ EOI }
